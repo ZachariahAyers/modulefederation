@@ -1,138 +1,110 @@
 # Module Federation
 
-A micro-frontend architecture demonstration using Webpack 5 Module Federation. Features independent deployments, runtime composition, and shared dependencies across multiple React applications.
+Four independently built web apps, three in React and one in Vue, composed into a single page at runtime with webpack Module Federation.
 
-[View Portfolio](https://zachayers.io) | [Live Demo](https://modulefederation.zachayers.io)
+By [Zachariah Ayers](https://ayers.repair) · [GitHub](https://github.com/ZachariahAyers)
 
-## About
+## What it is
 
-Module Federation showcases modern micro-frontend architecture where independent teams can develop, test, and deploy separate applications that integrate seamlessly at runtime. Built with Webpack 5, React 17, and managed as a monorepo with Yarn Workspaces.
+A host application, the **Container**, owns the URL and the page chrome. It loads three remote applications on demand:
 
-## Built With
+| App | Framework | Dev port | Owns |
+| --- | --- | --- | --- |
+| Container | React 19 | 8080 | Header, routing, the explorer panel |
+| Marketing | React 19 | 8081 | `/`, `/how-it-works` |
+| Auth | React 19 | 8082 | `/auth/signin`, `/auth/signup` |
+| Dashboard | Vue 3 | 8083 | `/dashboard` |
 
-### Frontend
-- React 17
-- React Router DOM
-- Material-UI
+Each app has its own webpack build, its own output folder and its own deploy path. None of them imports another at build time.
 
-### Bundler & Tools
-- Webpack 5
-- Module Federation Plugin
-- Yarn Workspaces
-- Babel
-- ESLint
-- Prettier
+## Why it is interesting
 
-### Deployment
-- AWS S3
-- CloudFront
+**Independent deploys.** A remote is published as a `remoteEntry.js` plus hashed chunks under its own path. Rebuild and redeploy Marketing and the Container picks it up on the next page load; nothing else is rebuilt. The bundled nginx config serves `remoteEntry.js` with `no-cache` and the hashed chunks as immutable, which is what makes that safe.
 
-## Getting Started
+**Runtime composition.** The Container's routes point at `import("marketing/mount")`, `import("auth/mount")` and `import("dashboard/mount")`. Module Federation resolves those in the browser, the first time each route is visited.
 
-### Prerequisites
+**Shared dependencies.** React, React DOM, React Router and Vue are shared singletons. Each app declares the version range it accepts in its own `package.json`; the runtime loads one compatible copy and every app uses it.
 
-- Node.js 14.x or higher
-- Yarn 1.22.x or higher
+**Framework agnostic.** Every remote exposes the same contract: `mount(element, options)` returning `{ unmount, onHostNavigate }`. The Vue Dashboard mounts inside the React Container through that contract alone.
 
-### Installation
+**Router synchronisation.** A React remote runs a memory router while hosted and a browser router when run on its own. Navigations are reported both ways, so links inside a remote update the address bar and the back button works across apps.
+
+**Style isolation.** Every app uses CSS Modules through webpack's built-in CSS support. Class names carry the app's name as a prefix, so two apps can each define `.title` without colliding.
+
+**Failure isolation.** If a remote cannot be loaded, the Container shows a notice in its place and the rest of the page keeps working. Visiting the route again retries the load.
+
+The **explorer** panel in the bottom corner shows each remote's entry URL, whether it has loaded and how long that took (measured in the browser), and the shared packages the Container provides.
+
+## Stack
+
+- webpack 5 and its built-in [`ModuleFederationPlugin`](https://webpack.js.org/plugins/module-federation-plugin/)
+- React 19 and React Router 7
+- Vue 3.5 and Chart.js 4
+- CSS Modules via webpack's native CSS support
+- Babel 8, ESLint 10, `node:test`
+- npm workspaces, Node.js 22.13 or later
+
+## Getting started
 
 ```bash
-git clone https://github.com/N73311/modulefederation.git
+git clone https://github.com/ZachariahAyers/modulefederation.git
 cd modulefederation
-yarn install
+npm install
 ```
 
-### Development
-
-Start all micro-frontends:
+Start all four dev servers, then open http://localhost:8080:
 
 ```bash
-yarn start:all
+npm start
 ```
 
-Or start individual applications:
+Or run one app on its own; each remote also works standalone on its own port:
 
 ```bash
-yarn workspace container start    # Host application (port 8080)
-yarn workspace marketing start    # Marketing app (port 8081)
-yarn workspace auth start         # Auth app (port 8082)
-yarn workspace dashboard start    # Dashboard app (port 8083)
+npm start --workspace marketing    # http://localhost:8081
+npm start --workspace auth         # http://localhost:8082
+npm start --workspace dashboard    # http://localhost:8083
+npm start --workspace container    # http://localhost:8080, needs the three remotes running
 ```
 
-### Build
+## Build, lint and test
 
 ```bash
-yarn build:all
+npm run build                        # production build of every app into packages/*/dist
+npm run build --workspace dashboard  # one app only
+npm run lint
+npm test
 ```
 
-## Project Structure
+## Run the production build
+
+The Dockerfile builds every app and serves them from one origin: the Container at `/` and each remote under `/marketing/`, `/auth/` and `/dashboard/`.
+
+```bash
+docker build -t modulefederation .
+docker run --rm -p 8080:80 modulefederation
+```
+
+## Project structure
 
 ```
 modulefederation/
 ├── packages/
-│   ├── container/      # Host application - orchestrates remotes
-│   ├── marketing/      # Marketing micro-frontend
-│   ├── auth/          # Authentication micro-frontend
-│   └── dashboard/     # Dashboard micro-frontend
-├── package.json       # Root workspace configuration
-└── yarn.lock
+│   ├── container/      Host: routing, header, explorer, loads the remotes
+│   ├── marketing/      Remote (React): landing and how-it-works pages
+│   ├── auth/           Remote (React): sign-in and sign-up forms
+│   ├── dashboard/      Remote (Vue): sample dashboard with a Chart.js chart
+│   ├── react-mount/    Shared source: the mount contract and router sync for React remotes
+│   └── theme/          Shared source: design tokens and base styles
+├── webpack/
+│   └── create-config.js  One webpack config factory used by every app
+├── scripts/start.js    Starts every dev server
+├── Dockerfile
+└── nginx.conf
 ```
 
-## Architecture
-
-### Micro-Frontend Components
-
-- **Container**: Host application that loads and orchestrates remote modules
-- **Marketing**: Landing page and marketing content
-- **Auth**: User authentication and registration
-- **Dashboard**: Authenticated user dashboard
-
-### Module Federation Configuration
-
-Each micro-frontend exposes components via Webpack Module Federation:
-
-```javascript
-new ModuleFederationPlugin({
-  name: 'marketing',
-  filename: 'remoteEntry.js',
-  exposes: {
-    './MarketingApp': './src/bootstrap',
-  },
-  shared: {
-    react: { singleton: true, eager: true },
-    'react-dom': { singleton: true, eager: true },
-  },
-})
-```
-
-### Key Features
-
-- **Runtime Composition**: Micro-frontends loaded dynamically at runtime
-- **Independent Deployments**: Each app deploys independently without coordination
-- **Shared Dependencies**: React and React-DOM shared via singleton pattern
-- **CSS Isolation**: Material-UI class name generators prevent style conflicts
-- **Routing Synchronization**: Memory routers synchronized across micro-frontends
-- **No Build Coupling**: Zero build-time dependencies between applications
-
-## Deployment
-
-The application uses S3 for static hosting with CloudFront for CDN:
-
-```bash
-# Deploy all micro-frontends
-./deploy.sh
-
-# Individual deployments
-aws s3 sync packages/container/dist s3://bucket/container/latest/ --delete
-aws s3 sync packages/marketing/dist s3://bucket/marketing/latest/ --delete
-aws s3 sync packages/auth/dist s3://bucket/auth/latest/ --delete
-aws s3 sync packages/dashboard/dist s3://bucket/dashboard/latest/ --delete
-```
+`react-mount` and `theme` are workspace packages compiled into each app that uses them. They are shared source, not shared runtime modules, so each app still deploys on its own.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
-
-## Author
-
-Zachariah Ayers - [zachayers.io](https://zachayers.io)
+Apache License 2.0. See [LICENSE](LICENSE).
