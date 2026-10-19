@@ -1,4 +1,9 @@
-export const features = [
+export interface Feature {
+  title: string;
+  body: string;
+}
+
+export const features: Feature[] = [
   {
     title: "Runtime composition",
     body: "The host learns where each app lives from its remote entry and loads it in the browser. Nothing is linked at build time.",

@@ -22,8 +22,8 @@ export default function HowItWorks() {
     <main className={styles.page}>
       <h1>How it works</h1>
       <p className={styles.lead}>
-        The Container owns the URL. Each path belongs to one remote, which the Container
-        loads the first time that path is visited.
+        The Container owns the URL. Each path belongs to one remote, which the Container loads the
+        first time that path is visited.
       </p>
 
       <div className={`card ${styles.tableWrap}`}>

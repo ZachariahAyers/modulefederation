@@ -1,2 +1,2 @@
 // The async boundary lets Module Federation resolve shared packages before any app code runs.
-import("./standalone.js");
+void import("./standalone");

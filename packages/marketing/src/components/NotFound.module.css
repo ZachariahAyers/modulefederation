@@ -1,0 +1,10 @@
+.page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 5rem 1rem;
+  text-align: center;
+}
+
+.lead {
+  color: var(--text-muted);
+}
