@@ -68,7 +68,7 @@ Sign-in is a demo: any values sign in and nothing leaves the browser. The contai
 
 The Dockerfile builds every app and copies each `dist` into one nginx root: the container at `/`, remotes under their paths. `nginx.conf` serves `remoteEntry.js` with `Cache-Control: no-cache` and hashed chunks as immutable, so a remote can be redeployed alone and the host picks it up on the next page load.
 
-`PUBLIC_BASE` moves the whole site under one path: `PUBLIC_BASE=/opensource/modulefederation/ npm run build` gives every app its production path under that prefix, and the host and standalone routers use it as their basename. Unset, the site is served from `/`. The `demo` workflow builds this way and publishes to [ayers.repair/opensource/modulefederation](https://ayers.repair/opensource/modulefederation/).
+`PUBLIC_BASE` moves the whole site under one path: `PUBLIC_BASE=/opensource/modulefederation/ npm run build` gives every app its production path under that prefix, and the host and standalone routers use it as their basename. Unset, the site is served from `/`. The `demo` job in `ci.yml` builds this way, after the checks pass, and publishes to [ayers.repair/opensource/modulefederation](https://ayers.repair/opensource/modulefederation/).
 
 ## Tests
 
