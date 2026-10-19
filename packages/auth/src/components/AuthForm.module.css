@@ -1,0 +1,54 @@
+.page {
+  display: grid;
+  place-items: center;
+  padding: 3rem 1rem 4rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 24rem);
+  padding: 2rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--react);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.field input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 400;
+}
+
+.submit {
+  width: 100%;
+}
+
+.note,
+.switch {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
