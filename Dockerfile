@@ -6,6 +6,7 @@ COPY packages/container/package.json packages/container/
 COPY packages/marketing/package.json packages/marketing/
 COPY packages/auth/package.json packages/auth/
 COPY packages/dashboard/package.json packages/dashboard/
+COPY packages/contract/package.json packages/contract/
 COPY packages/react-mount/package.json packages/react-mount/
 COPY packages/theme/package.json packages/theme/
 RUN npm ci --no-audit --no-fund
