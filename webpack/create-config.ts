@@ -8,15 +8,22 @@ const { ModuleFederationPlugin } = webpack.container;
 /** Packages loaded once at runtime; whichever app loads first provides the copy. */
 export const SINGLETONS = new Set(["react", "react-dom", "react-router", "vue"]);
 
-/** Where each app runs in development and where it is served from in production. */
+/** Where each app runs in development, and its folder under the site's base in production. */
 export const APPS = {
-  container: { port: 8080, base: "/" },
-  marketing: { port: 8081, base: "/marketing/" },
-  auth: { port: 8082, base: "/auth/" },
-  dashboard: { port: 8083, base: "/dashboard/" },
+  container: { port: 8080, path: "" },
+  marketing: { port: 8081, path: "marketing/" },
+  auth: { port: 8082, path: "auth/" },
+  dashboard: { port: 8083, path: "dashboard/" },
 } as const;
 
 export type AppName = keyof typeof APPS;
+
+/** The path the site is served under in production: PUBLIC_BASE, with one slash each side, or `/`. */
+export const publicBase = (value = process.env.PUBLIC_BASE ?? "") =>
+  `/${value.replace(/^\/+|\/+$/g, "")}/`.replace(/^\/\/$/, "/");
+
+/** Where one app is served from in production. */
+export const appBase = (name: AppName, base = publicBase()) => base + APPS[name].path;
 
 export interface AppOptions {
   name: AppName;
@@ -32,7 +39,7 @@ export interface AppOptions {
 
 export const remoteEntry = (name: AppName, production: boolean) =>
   production
-    ? `${name}@${APPS[name].base}remoteEntry.js`
+    ? `${name}@${appBase(name)}remoteEntry.js`
     : `${name}@http://localhost:${APPS[name].port}/remoteEntry.js`;
 
 export const sharedFrom = (dependencies: Record<string, string>) =>
@@ -67,7 +74,7 @@ export function createConfig(
   mode?: string,
 ) {
   const production = mode === "production";
-  const { port, base } = APPS[name];
+  const { port } = APPS[name];
 
   return {
     mode: production ? "production" : "development",
@@ -77,7 +84,7 @@ export function createConfig(
     output: {
       path: path.join(dir, "dist"),
       filename: production ? "[name].[contenthash].js" : "[name].js",
-      publicPath: production ? base : `http://localhost:${port}/`,
+      publicPath: production ? appBase(name) : `http://localhost:${port}/`,
       uniqueName: name,
       clean: true,
     },
@@ -100,6 +107,10 @@ export function createConfig(
           remotes.map((remote) => [remote, remoteEntry(remote, production)]),
         ),
         shared: sharedFrom(readDependencies(dir)),
+      }),
+      // The browser router's basename, so routes and links stay under the site's base.
+      new webpack.DefinePlugin({
+        __PUBLIC_BASE__: JSON.stringify(production ? publicBase() : "/"),
       }),
       new HtmlWebpackPlugin({ template: "./public/index.html" }),
       ...plugins,

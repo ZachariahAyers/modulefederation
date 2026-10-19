@@ -9,7 +9,8 @@ Four webpack 5 apps composed in the browser at runtime: `container` (React host)
 - `npm test`: every test (Vitest, jsdom). One file: `npx vitest run packages/auth/src/components/AuthForm.test.tsx`.
 - `npm run typecheck`: `vue-tsc` over all packages, `.vue` files included.
 - `npm run lint`, `npm run format` (Prettier writes), `npm run format:check`.
-- `npm run build`: every app into `packages/*/dist`. One app: `npm run build --workspace auth`.
+- `npm run build`: every app into `packages/*/dist`. One app: `npm run build --workspace auth`. `PUBLIC_BASE=/some/path/` serves the whole site under that path.
+- Workflows: `ci.yml` runs `npm run check`; `demo.yml` publishes to ayers.repair/opensource/modulefederation/ on a push to `master`.
 - `npm start`: all four dev servers on 8080 to 8083. It never exits; do not use it to verify a change.
 
 ## Workspace

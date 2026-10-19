@@ -24,6 +24,7 @@ A rebuild of the same four-app demo on current tools. No new product features.
 - CI on GitHub Actions running the full check.
 - A notice in place of a remote that fails to load; the rest of the page keeps working.
 - A not-found page for paths no app owns.
+- `PUBLIC_BASE` serves the whole site under one path, and a `demo` workflow publishes it to ayers.repair/opensource/modulefederation/.
 - `CLAUDE.md`, `docs/ARCHITECTURE.md` and a shared `.claude/settings.json` for working on the repo with Claude Code.
 
 ### Fixed

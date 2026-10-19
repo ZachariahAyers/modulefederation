@@ -24,7 +24,7 @@ export function createMount<Props extends object = object>(
       Props;
     const routes = buildRoutes(props as Props);
     const router = standalone
-      ? createBrowserRouter(routes)
+      ? createBrowserRouter(routes, { basename: __PUBLIC_BASE__ })
       : createMemoryRouter(routes, { initialEntries: [initialPath ?? "/"] });
     const sync = syncWithHost(router, onNavigate ?? (() => {}));
     const root = createRoot(element);

@@ -1,7 +1,7 @@
 import path from "node:path";
 import webpack from "webpack";
-import { describe, expect, it } from "vitest";
-import { createConfig, remoteEntry, sharedFrom } from "./create-config.ts";
+import { describe, expect, it, vi } from "vitest";
+import { appBase, createConfig, publicBase, remoteEntry, sharedFrom } from "./create-config.ts";
 
 const { ModuleFederationPlugin } = webpack.container;
 const root = path.resolve(import.meta.dirname, "..");
@@ -15,6 +15,36 @@ describe("createConfig", () => {
   it("points remote entries at localhost in development and at the app's path in production", () => {
     expect(remoteEntry("auth", false)).toBe("auth@http://localhost:8082/remoteEntry.js");
     expect(remoteEntry("auth", true)).toBe("auth@/auth/remoteEntry.js");
+  });
+
+  it("serves every app from the site root unless PUBLIC_BASE moves it", () => {
+    expect(publicBase("")).toBe("/");
+    expect(publicBase("/")).toBe("/");
+    expect(publicBase("opensource/modulefederation")).toBe("/opensource/modulefederation/");
+    expect(appBase("container", publicBase("/opensource/modulefederation/"))).toBe(
+      "/opensource/modulefederation/",
+    );
+    expect(appBase("dashboard", publicBase("/opensource/modulefederation/"))).toBe(
+      "/opensource/modulefederation/dashboard/",
+    );
+  });
+
+  it("builds every production path from PUBLIC_BASE", () => {
+    vi.stubEnv("PUBLIC_BASE", "/opensource/modulefederation/");
+    const config = createConfig(
+      { name: "container", dir: path.join(root, "packages/container"), remotes: ["auth"] },
+      "production",
+    );
+
+    expect(config.output.publicPath).toBe("/opensource/modulefederation/");
+    expect(federationOptions(config).remotes).toEqual({
+      auth: "auth@/opensource/modulefederation/auth/remoteEntry.js",
+    });
+    const define = config.plugins.find(
+      (plugin): plugin is InstanceType<typeof webpack.DefinePlugin> =>
+        plugin instanceof webpack.DefinePlugin,
+    )!;
+    expect(define.definitions.__PUBLIC_BASE__).toBe('"/opensource/modulefederation/"');
   });
 
   it("shares framework packages as singletons and everything else by version range", () => {

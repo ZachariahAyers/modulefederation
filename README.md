@@ -4,6 +4,8 @@
 
 Four independently built web apps, three in React and one in Vue, composed into a single page at runtime with webpack Module Federation.
 
+Live demo: [ayers.repair/opensource/modulefederation](https://ayers.repair/opensource/modulefederation/).
+
 ## Features
 
 - A host app that owns routing and the page chrome and loads three remote apps on demand

@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [vue()],
   define: {
+    __PUBLIC_BASE__: JSON.stringify("/"),
     // The container's build injects this; tests get a fixed sample.
     __FEDERATION__: JSON.stringify({
       entries: {
@@ -22,5 +23,6 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["packages/*/src/**/*.test.{ts,tsx}", "webpack/*.test.ts"],
     restoreMocks: true,
+    unstubEnvs: true,
   },
 });
