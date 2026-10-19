@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import { Link } from "react-router";
 import * as styles from "./AuthForm.module.css";
 
@@ -18,10 +19,15 @@ const copy = {
   },
 };
 
-export default function AuthForm({ mode, onSignIn }) {
+interface AuthFormProps {
+  mode: keyof typeof copy;
+  onSignIn: () => void;
+}
+
+export default function AuthForm({ mode, onSignIn }: AuthFormProps) {
   const text = copy[mode];
 
-  const submit = (event) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSignIn();
   };
