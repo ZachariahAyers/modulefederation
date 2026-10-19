@@ -1,0 +1,36 @@
+.progress {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: sweep 1.2s linear infinite;
+}
+
+@keyframes sweep {
+  from {
+    background-position: -50% 0;
+  }
+
+  to {
+    background-position: 150% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    animation: none;
+    background: var(--accent);
+  }
+}
+
+.failed {
+  max-width: 40rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  border-color: var(--error);
+}
+
+.failed p {
+  margin: 0;
+  color: var(--text-muted);
+}
