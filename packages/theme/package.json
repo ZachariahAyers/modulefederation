@@ -2,6 +2,7 @@
   "name": "@mfe/theme",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "description": "Design tokens and base styles. The host loads them once; each remote loads them only when it runs on its own.",
   "exports": {
     "./global.css": "./global.css"

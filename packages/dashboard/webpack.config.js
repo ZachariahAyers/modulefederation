@@ -1,14 +1,14 @@
-const { VueLoaderPlugin } = require("vue-loader");
-const { createConfig } = require("../../webpack/create-config");
+import vueLoader from "vue-loader";
+import { createConfig } from "../../webpack/create-config.ts";
 
-module.exports = (_env, { mode }) =>
+export default (_env, { mode }) =>
   createConfig(
     {
       name: "dashboard",
-      dir: __dirname,
-      exposes: { "./mount": "./src/mount.js" },
+      dir: import.meta.dirname,
+      exposes: { "./mount": "./src/mount.ts" },
       rules: [{ test: /\.vue$/, loader: "vue-loader" }],
-      plugins: [new VueLoaderPlugin()],
+      plugins: [new vueLoader.VueLoaderPlugin()],
     },
     mode,
   );

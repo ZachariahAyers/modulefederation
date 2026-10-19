@@ -2,12 +2,15 @@
   "name": "@mfe/react-mount",
   "version": "2.0.0",
   "private": true,
-  "description": "Mounts a React remote into any host and keeps its router in step with the host's.",
+  "description": "Turns a React route tree into a remote's mount function and keeps its router in step with the host's.",
   "type": "module",
-  "exports": "./index.js",
+  "exports": "./src/index.ts",
   "peerDependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^7.18.4"
+  },
+  "devDependencies": {
+    "@mfe/contract": "*"
   }
 }

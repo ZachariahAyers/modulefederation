@@ -1,0 +1,8 @@
+{
+  "name": "@mfe/contract",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Types for the mount contract every remote implements and the host calls.",
+  "type": "module",
+  "exports": "./src/index.ts"
+}

@@ -1,8 +1,6 @@
 // Starts every app's dev server side by side; Ctrl+C stops them all.
-const { spawn } = require("node:child_process");
+import { spawn } from "node:child_process";
 
-const apps = ["marketing", "auth", "dashboard", "container"];
-
-for (const app of apps) {
+for (const app of ["marketing", "auth", "dashboard", "container"]) {
   spawn("npm", ["start", "--workspace", app], { stdio: "inherit" });
 }

@@ -1,31 +1,38 @@
-const path = require("node:path");
-const { DefinePlugin } = require("webpack");
-const { SINGLETONS, createConfig, remoteEntry } = require("../../webpack/create-config");
-const { dependencies } = require("./package.json");
+import { createRequire } from "node:module";
+import webpack from "webpack";
+import {
+  SINGLETONS,
+  createConfig,
+  readDependencies,
+  remoteEntry,
+} from "../../webpack/create-config.ts";
 
 const REMOTES = ["marketing", "auth", "dashboard"];
+const require = createRequire(import.meta.url);
 
-const installedVersion = (name) =>
-  require(require.resolve(path.join(name, "package.json"), { paths: [__dirname] })).version;
+/** Facts the explorer panel shows, taken from the same sources Module Federation uses. */
+const federationFacts = (production) => ({
+  entries: Object.fromEntries(
+    REMOTES.map((name) => [name, remoteEntry(name, production).split("@")[1]]),
+  ),
+  shared: Object.keys(readDependencies(import.meta.dirname)).map((name) => ({
+    name,
+    version: require(`${name}/package.json`).version,
+    singleton: SINGLETONS.has(name),
+  })),
+});
 
-module.exports = (_env, { mode }) => {
-  const production = mode === "production";
-  const federation = {
-    entries: Object.fromEntries(REMOTES.map((name) => [name, remoteEntry(name, production)])),
-    shared: Object.keys(dependencies).map((name) => ({
-      name,
-      version: installedVersion(name),
-      singleton: SINGLETONS.has(name),
-    })),
-  };
-
-  return createConfig(
+export default (_env, { mode }) =>
+  createConfig(
     {
       name: "container",
-      dir: __dirname,
+      dir: import.meta.dirname,
       remotes: REMOTES,
-      plugins: [new DefinePlugin({ __FEDERATION__: JSON.stringify(federation) })],
+      plugins: [
+        new webpack.DefinePlugin({
+          __FEDERATION__: JSON.stringify(federationFacts(mode === "production")),
+        }),
+      ],
     },
     mode,
   );
-};
