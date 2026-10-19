@@ -1,0 +1,92 @@
+.page {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--vue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lead {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  display: grid;
+  padding: 1.25rem;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.statLabel {
+  color: var(--text-muted);
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1rem;
+}
+
+.panel {
+  padding: 1.25rem;
+}
+
+.panelTitle {
+  font-size: 1.05rem;
+}
+
+.chart {
+  position: relative;
+  height: 16rem;
+}
+
+.tasks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tasks li + li {
+  border-top: 1px solid var(--border);
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  cursor: pointer;
+}
+
+.task input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--vue);
+}
+
+.done {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
