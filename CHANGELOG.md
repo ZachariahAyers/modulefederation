@@ -8,7 +8,7 @@
 
 ## 2.0.0 (2026-10-19)
 
-A rebuild of the same four-app demo on current tools. No new product features.
+The four-app demo on current tools.
 
 ### Changed
 
@@ -42,7 +42,3 @@ A rebuild of the same four-app demo on current tools. No new product features.
 
 - The EC2 and ECR deploy workflow, the empty Dependabot config, IDE settings and `.DS_Store` files.
 - The `--openssl-legacy-provider` workaround.
-
-## 1.0.0 (2020-11-21 to 2025-10-05)
-
-The original build, tagged `v1`: a React 17 host with React marketing and auth remotes and a Vue 3 dashboard remote on webpack 5.4 Module Federation, styled with Material UI 4 and PrimeVue 3, deployed to S3 and later to EC2 with Docker.
