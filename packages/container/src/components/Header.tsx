@@ -1,9 +1,15 @@
-import { NavLink } from "react-router";
+import { NavLink, type NavLinkRenderProps } from "react-router";
 import * as styles from "./Header.module.css";
 
-const linkClass = ({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link);
+const linkClass = ({ isActive }: NavLinkRenderProps) =>
+  isActive ? `${styles.link} ${styles.active}` : styles.link;
 
-export default function Header({ signedIn, onSignOut }) {
+interface HeaderProps {
+  signedIn: boolean;
+  onSignOut: () => void;
+}
+
+export default function Header({ signedIn, onSignOut }: HeaderProps) {
   return (
     <header className={styles.header}>
       <NavLink className={styles.brand} to="/">

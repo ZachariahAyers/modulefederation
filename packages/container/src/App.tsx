@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router";
-import Explorer from "./components/Explorer.jsx";
-import Header from "./components/Header.jsx";
-import RemoteApp from "./components/RemoteApp.jsx";
-import { remotes } from "./remotes.js";
+import Explorer from "./components/Explorer";
+import Header from "./components/Header";
+import RemoteApp from "./components/RemoteApp";
+import { remotes } from "./remotes";
 
 export default function App() {
   const [signedIn, setSignedIn] = useState(false);

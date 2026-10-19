@@ -1,21 +1,29 @@
+import type { MountedApp } from "@mfe/contract";
 import { useEffect, useEffectEvent, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { loadRemote, useRemoteStatuses } from "../remote-status.js";
+import { loadRemote, useRemoteStatuses } from "../remote-status";
+import type { Remote } from "../remotes";
 import * as styles from "./RemoteApp.module.css";
 
+type RemoteAppProps<Props extends object> = { remote: Remote<Props> } & Props;
+
 /** Mounts one remote into a DOM node and keeps its router on the host's path. */
-export default function RemoteApp({ remote, ...props }) {
-  const node = useRef(null);
-  const app = useRef(null);
+export default function RemoteApp<Props extends object>({
+  remote,
+  ...props
+}: RemoteAppProps<Props>) {
+  const node = useRef<HTMLDivElement>(null);
+  const app = useRef<MountedApp | null>(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const status = useRemoteStatuses()[remote.name];
 
-  const mountRemote = useEffectEvent((module) => {
-    app.current = module.mount(node.current, {
+  const mountRemote = useEffectEvent(({ mount }: Awaited<ReturnType<Remote<Props>["load"]>>) => {
+    if (!node.current) return;
+    app.current = mount(node.current, {
       initialPath: pathname,
-      onNavigate: navigate,
-      ...props,
+      onNavigate: (path) => void navigate(path),
+      ...(props as Props),
     });
   });
 
@@ -23,7 +31,7 @@ export default function RemoteApp({ remote, ...props }) {
     let active = true;
     loadRemote(remote).then(
       (module) => active && mountRemote(module),
-      () => {},
+      () => {}, // The failure is shown from the status store.
     );
     return () => {
       active = false;
@@ -43,8 +51,8 @@ export default function RemoteApp({ remote, ...props }) {
       <div className={`card ${styles.failed}`} role="alert">
         <h2>{remote.label} is unavailable</h2>
         <p>
-          Its remote entry could not be loaded. The rest of the page still works; reload to
-          try again.
+          Its remote entry could not be loaded. The rest of the page still works; reload to try
+          again.
         </p>
       </div>
     );
@@ -53,7 +61,11 @@ export default function RemoteApp({ remote, ...props }) {
   return (
     <>
       {status?.state === "loading" && (
-        <div className={styles.progress} role="progressbar" aria-label={`Loading ${remote.label}`} />
+        <div
+          className={styles.progress}
+          role="progressbar"
+          aria-label={`Loading ${remote.label}`}
+        />
       )}
       <div ref={node} />
     </>

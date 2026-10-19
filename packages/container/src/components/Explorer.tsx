@@ -1,11 +1,12 @@
-import { remotes } from "../remotes.js";
-import { useRemoteStatuses } from "../remote-status.js";
+import { type RemoteStatus, useRemoteStatuses } from "../remote-status";
+import { remotes } from "../remotes";
 import * as styles from "./Explorer.module.css";
 
-// Written at build time from the same configuration Module Federation uses.
 const { entries, shared } = __FEDERATION__;
 
-const describe = (status) => {
+const frameworkClass = { React: styles.react, Vue: styles.vue };
+
+const describe = (status: RemoteStatus | undefined) => {
   if (!status) return "Not loaded yet";
   if (status.state === "loading") return "Loading";
   if (status.state === "failed") return `Failed: ${status.error}`;
@@ -25,10 +26,14 @@ export default function Explorer() {
             {Object.values(remotes).map((remote) => {
               const status = statuses[remote.name];
               return (
-                <li key={remote.name} className={styles.remote} data-state={status?.state ?? "idle"}>
+                <li
+                  key={remote.name}
+                  className={styles.remote}
+                  data-state={status?.state ?? "idle"}
+                >
                   <span className={styles.name}>
                     {remote.label}
-                    <span className={styles[remote.framework.toLowerCase()]}>{remote.framework}</span>
+                    <span className={frameworkClass[remote.framework]}>{remote.framework}</span>
                   </span>
                   <code className={styles.entry}>{entries[remote.name]}</code>
                   <span className={styles.status}>{describe(status)}</span>

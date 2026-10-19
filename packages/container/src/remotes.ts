@@ -1,3 +1,12 @@
+import type { AuthProps, Mount } from "@mfe/contract";
+
+export interface Remote<Props extends object = object> {
+  name: string;
+  label: string;
+  framework: "React" | "Vue";
+  load: () => Promise<{ mount: Mount<Props> }>;
+}
+
 // Every remote the host knows about. The import specifiers resolve through
 // Module Federation to each app's remoteEntry.js at runtime.
 export const remotes = {
@@ -19,4 +28,8 @@ export const remotes = {
     framework: "Vue",
     load: () => import("dashboard/mount"),
   },
+} satisfies {
+  marketing: Remote;
+  auth: Remote<AuthProps>;
+  dashboard: Remote;
 };
