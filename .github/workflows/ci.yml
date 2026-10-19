@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,3 +19,47 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+
+  demo:
+    needs: check
+    if: github.event_name == 'push'
+    concurrency:
+      group: demo
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          PUBLIC_BASE: /opensource/modulefederation/
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::993011736775:role/gh-deploy-opensource-modulefederation
+          aws-region: us-east-1
+
+      # The host's sync skips the remotes' folders, so its --delete cannot remove them.
+      - name: Publish to ayers.repair/opensource/modulefederation/
+        run: |
+          B=s3://ayers-repair-site-993011736775/opensource/modulefederation
+          aws s3 sync packages/container/dist/ "$B/" --delete \
+            --exclude "marketing/*" --exclude "auth/*" --exclude "dashboard/*" \
+            --cache-control "public, max-age=300" --only-show-errors
+          for r in marketing auth dashboard; do
+            aws s3 sync "packages/$r/dist/" "$B/$r/" --delete \
+              --cache-control "public, max-age=300" --only-show-errors
+          done
+          aws cloudfront create-invalidation --distribution-id E1CZIGG4O8R7UI \
+            --paths "/opensource/modulefederation/*" --query Invalidation.Id --output text
