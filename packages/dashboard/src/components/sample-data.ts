@@ -10,7 +10,13 @@ export const signups = {
   values: [9, 14, 11, 18, 16, 12, 16],
 };
 
-export const initialTasks = [
+export interface Task {
+  id: number;
+  text: string;
+  done: boolean;
+}
+
+export const initialTasks: readonly Task[] = [
   { id: 1, text: "Review the Marketing release", done: true },
   { id: 2, text: "Bump the shared React range", done: false },
   { id: 3, text: "Add a fallback for the Auth remote", done: false },
