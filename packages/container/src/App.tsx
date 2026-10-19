@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { startTransition, useCallback, useState } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router";
 import Explorer from "./components/Explorer";
 import Header from "./components/Header";
@@ -14,9 +14,11 @@ export default function App() {
     navigate("/dashboard");
   }, [navigate]);
 
+  // React Router applies navigations as transitions. Signing out in the same transition stops
+  // the dashboard route from redirecting to sign-in before the move to "/" lands.
   const signOut = () => {
-    setSignedIn(false);
     navigate("/");
+    startTransition(() => setSignedIn(false));
   };
 
   return (
